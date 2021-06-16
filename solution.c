@@ -120,6 +120,8 @@ void daem(char *ip, int port, char *dir)
 	printf("port: %d\n", port);
 	printf("dir: %s\n", dir);
 
+	signal(SIGHUP, SIG_IGN);
+	
 	if (makedaemon(dir) != 0){
 		exit(0);
 	}
