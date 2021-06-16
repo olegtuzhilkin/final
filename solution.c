@@ -23,7 +23,7 @@ char OK[] = "HTTP/1.1 200 OK\n";
 char NOTFOUND[] = "HTTP/1.1 404 NOT FOUND\n";
 char ACCEPTR[] = "Accept-Ranges: bytes\n";
 char CONTENTL[] = "Content-Length: ";
-char CONTENTT[] = "Content-Type: text/html\n\n";
+char CONTENTT[] = "Content-Type: text/html\n";
 char NOTFOUNDHTML[] = "<!DOCTYPE html PUBLIC\n\"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html>\n<head><title>404</title></head>\n<body>\n<h1> 404 </h1>\n<h2> file not found </h2>\n</body>\n</html>\n\n";
 //------------------------------------------------
 
