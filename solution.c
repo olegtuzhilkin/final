@@ -55,9 +55,9 @@ int makedaemon(char *dir)
 		//perror("chdir\n");
 		exit(0);
 	}
-	close(STDIN_FILENO);
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
+	//close(STDIN_FILENO);
+	//close(STDOUT_FILENO);
+	//close(STDERR_FILENO);
 	//------------daemon has started-------------
 
 	//printf("makedaemon has done\n");
@@ -73,7 +73,7 @@ char *getfilename(char* buf, char* filename)
 	fnend = strstr(buf, endstring);
 	memset(filename, '\0', BUFSIZ);
 	strncpy(filename, fnbegin, fnend-1-fnbegin);
-	//printf("FILENAME IS:%s\n", filename);
+	printf("FILENAME IS:%s\n", filename);
 	
 	//printf("getfilename has finished\n");
 	
@@ -169,7 +169,7 @@ while(1){
 			//printf("rslt is not zero\n");
 			if (FD_ISSET(cs, &read_set)){
 				read(cs, buf, BUFSIZ);
-				//printf("\nquestion is:\n%s\n", buf);
+				printf("\nquestion is:\n%s\n", buf);
 				
 				if (strlen(buf) < 5){
 					//memset(buf, '\0', 255);
@@ -182,13 +182,13 @@ while(1){
 			//		break;
 	
 				if((html = open(filename, O_RDONLY)) > 0){
-					//printf("file %s is find\n", filename);
+					printf("file %s is find\n", filename);
 					makeanswer(html, full_answer, 0);
 					close(html);
 					send(cs, full_answer, strlen(full_answer), 0);
 				}
 				else{
-					//printf("file %s is NOT find\n", filename);
+					printf("file %s is NOT find\n", filename);
 					html = open("nfound.html", O_RDONLY);
 					makeanswer(html, full_answer, 1);
 					close(html);
