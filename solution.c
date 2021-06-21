@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 	
 
 	pid = fork();
-	printf("pid: %d\n", getpid());
+	printf("!pid: %d\n", getpid());
 
 	if (pid == -1)	{
 		perror("fork\n");
