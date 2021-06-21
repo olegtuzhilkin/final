@@ -123,9 +123,9 @@ void daem(char *ip, int port, char *dir)
 
 	signal(SIGHUP, SIG_IGN);
 	
-//	if (makedaemon(dir) != 0){
-//		exit(0);
-//	}
+	if (makedaemon(dir) != 0){
+		exit(0);
+	}
 
 	int ss = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (ss == -1){
@@ -211,9 +211,9 @@ int main(int argc, char *argv[])
 {
 	pid_t pid;
 	
-	char ip[] = "127.0.0.1";
+	char ip[25] = "127.0.0.1";
 	int port = 12347;
-	char dir[] = "~/home/marek/qt_project/final/";
+	char dir[100] = "~/home";
 
 	extern char* optarg;
 	extern int optind;	
