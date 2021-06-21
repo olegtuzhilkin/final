@@ -19,11 +19,12 @@
 #include <getopt.h>
 //------html templates----------------------------
 char getstring[] = "GET ";
+char endstring[] = "HTTP";
 char OK[] = "HTTP/1.1 200 OK\n";
 char NOTFOUND[] = "HTTP/1.1 404 NOT FOUND\n";
 char ACCEPTR[] = "Accept-Ranges: bytes\n";
 char CONTENTL[] = "Content-Length: ";
-char CONTENTT[] = "Content-Type: text/html\n";
+char CONTENTT[] = "Content-Type: text/html\n\n";
 char NOTFOUNDHTML[] = "<!DOCTYPE html PUBLIC\n\"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html>\n<head><title>404</title></head>\n<body>\n<h1> 404 </h1>\n<h2> file not found </h2>\n</body>\n</html>\n\n";
 //------------------------------------------------
 
@@ -69,9 +70,9 @@ char *getfilename(char* buf, char* filename)
 	char *fnbegin, *fnend;
 	fnbegin = strstr(buf, getstring);
 	fnbegin += 5;
-	fnend = strchr(buf, '?');
+	fnend = strstr(buf, endstring);
 	memset(filename, '\0', BUFSIZ);
-	strncpy(filename, fnbegin, fnend-fnbegin);
+	strncpy(filename, fnbegin, fnend-1-fnbegin);
 	//printf("FILENAME IS:%s\n", filename);
 	
 	//printf("getfilename has finished\n");
@@ -91,7 +92,7 @@ char *makeanswer(int html, char* full_answer, int head)
 	switch (head){
 		case 0:{
 			sprintf(full_answer, "%s%s%s%d\n%s%s", OK, ACCEPTR, CONTENTL, bcount, CONTENTT, buf_answ);
-			//printf("answer is %s\n", OK);
+			//printf("answer is %s\n", full_answer);
 			break;
 		}
 		case 1:{
@@ -122,9 +123,9 @@ void daem(char *ip, int port, char *dir)
 
 	signal(SIGHUP, SIG_IGN);
 	
-	if (makedaemon(dir) != 0){
-		exit(0);
-	}
+//	if (makedaemon(dir) != 0){
+//		exit(0);
+//	}
 
 	int ss = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (ss == -1){
@@ -152,7 +153,7 @@ void daem(char *ip, int port, char *dir)
 		//perror("listen\n");
 		exit(0);
 	}
-
+while(1){
 	int cs = accept(ss, NULL, NULL);
 	char buf[255];
 	char full_answer[BUFSIZ];
@@ -169,7 +170,14 @@ void daem(char *ip, int port, char *dir)
 			if (FD_ISSET(cs, &read_set)){
 				read(cs, buf, BUFSIZ);
 				//printf("\nquestion is:\n%s\n", buf);
+				
+				if (strlen(buf) < 5){
+					//memset(buf, '\0', 255);
+ 					//continue;
+					break;
+				}
 				getfilename(buf, filename);			
+			
 			//	if (filename == "exit")
 			//		break;
 	
@@ -194,6 +202,7 @@ void daem(char *ip, int port, char *dir)
 	//sleep(13);
 	//printf("daem is finishing!!!\n");
 	close(cs);
+	}
 	close(ss);	
 	return;
 }
