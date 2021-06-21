@@ -70,9 +70,12 @@ char *getfilename(char* buf, char* filename)
 	char *fnbegin, *fnend;
 	fnbegin = strstr(buf, getstring);
 	fnbegin += 5;
-	fnend = strstr(buf, endstring);
+	if ((fnend = strchr(buf, '?')) == NULL){
+		fnend = strstr(buf, endstring);
+		fnend--;
+	}
 	memset(filename, '\0', BUFSIZ);
-	strncpy(filename, fnbegin, fnend-1-fnbegin);
+	strncpy(filename, fnbegin, fnend-fnbegin);
 	printf("FILENAME IS:%s\n", filename);
 	
 	//printf("getfilename has finished\n");
