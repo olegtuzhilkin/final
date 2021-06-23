@@ -162,13 +162,13 @@ while(1){
 	char full_answer[BUFSIZ];
 	int html;
 	char filename[255];
-	int status;
+//	int status;
 
-	pid_t n_pid;
+//	pid_t n_pid;
 
-	n_pid = fork();
+//	n_pid = fork();
 
-	if (n_pid == 0){
+//	if (n_pid == 0){
 
 		while(1){
 			FD_ZERO(&read_set);
@@ -210,8 +210,8 @@ while(1){
 			}
 		}//while
 		close(cs);
-	}//if pid==0
-	waitpid(n_pid, &status, WUNTRACED);
+//	}//if pid==0
+//	waitpid(n_pid, &status, WUNTRACED);
 	}//while
 	close(ss);	
 	return;
