@@ -17,6 +17,11 @@
 #include <arpa/inet.h>
 //--------------------
 #include <getopt.h>
+//--------------------
+#include <pthread.h>
+
+#define STACK_SIZE 256
+
 //------html templates----------------------------
 char getstring[] = "GET ";
 char endstring[] = "HTTP";
@@ -111,11 +116,63 @@ char *makeanswer(int html, char* full_answer, int head)
 	return full_answer;
 }
 //-------------------------------------------------
+static void *start_thrd(void *ss)
+{
+	static char resp[] = "end\n";
+	fd_set read_set;
+	int cs = accept(*(int*)ss, NULL, NULL);
+	char buf[255];
+	char full_answer[BUFSIZ];
+	int html;
+	char filename[255];
+	while(1){
+		FD_ZERO(&read_set);
+		FD_SET(cs, &read_set);
+		int rslt = select(FD_SETSIZE, &read_set, NULL, NULL, NULL);
+
+		if (rslt){
+			//printf("rslt is not zero\n");
+			if (FD_ISSET(cs, &read_set)){
+				read(cs, buf, BUFSIZ);
+				printf("\nquestion is:\n%s\n", buf);
+			
+				if (strlen(buf) < 5){
+					//memset(buf, '\0', 255);
+ 					//continue;
+					break;
+				}
+				getfilename(buf, filename);			
+			
+			//	if (filename == "exit")
+			//		break;
+	
+				if((html = open(filename, O_RDONLY)) > 0){
+					printf("file %s is find\n", filename);
+					makeanswer(html, full_answer, 0);
+					close(html);
+					send(cs, full_answer, strlen(full_answer), 0);
+				}
+				else{
+					printf("file %s is NOT find\n", filename);
+					html = open("nfound.html", O_RDONLY);
+					makeanswer(html, full_answer, 1);
+					close(html);
+					send(cs, full_answer, strlen(full_answer), 0);
+				}
+				//break;
+			}
+			memset(buf, '\0', 255);
+		}
+	}//while
+	
+	return resp;
+}
+//-------------------------------------------------
 void daem(char *ip, int port, char *dir)
 {
 	pid_t pid;
 	struct sockaddr_in local;
-	fd_set read_set;
+	//fd_set read_set;
 	
 	pid = getpid();
 	printf("daemon pid: %d\n", pid);
@@ -157,20 +214,20 @@ void daem(char *ip, int port, char *dir)
 		exit(0);
 	}
 while(1){
-	int cs = accept(ss, NULL, NULL);
+	pthread_t thrd;
+	pthread_attr_t attr;
+	void *tres;
+/*	int cs = accept(ss, NULL, NULL);
 	char buf[255];
 	char full_answer[BUFSIZ];
 	int html;
-	char filename[255];
-	int status;
+	char filename[255];*/
 
-	pid_t n_pid;
-
-	n_pid = fork();
-
-	if (n_pid == 0){
-
-		while(1){
+	pthread_attr_init(&attr);
+	pthread_attr_setstacksize(&attr, STACK_SIZE);
+	pthread_create(&thrd, &attr, &start_thrd, &ss);
+	pthread_join(thrd, &tres);
+/*		while(1){
 			FD_ZERO(&read_set);
 			FD_SET(cs, &read_set);
 			int rslt = select(FD_SETSIZE, &read_set, NULL, NULL, NULL);
@@ -184,8 +241,7 @@ while(1){
 					if (strlen(buf) < 5){
 						//memset(buf, '\0', 255);
  						//continue;
-						close(cs);
-						return;
+						break;
 					}
 					getfilename(buf, filename);			
 			
@@ -210,9 +266,7 @@ while(1){
 				memset(buf, '\0', 255);
 			}
 		}//while
-		close(cs);
-	}//if pid==0
-	waitpid(n_pid, &status, WUNTRACED);
+		close(cs);*/
 	}//while
 	close(ss);	
 	return;

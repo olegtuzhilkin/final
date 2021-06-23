@@ -1,3 +1,5 @@
 cmake_minimum_required(VERSION 2.8.9)
 project (final)
+find_package (Threads)
 add_executable(final solution.c)
+target_link_libraries (final ${CMAKE_THREAD_LIBS_INIT})
