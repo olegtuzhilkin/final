@@ -162,50 +162,57 @@ while(1){
 	char full_answer[BUFSIZ];
 	int html;
 	char filename[255];
+	int status;
 
-	while(1){
-		FD_ZERO(&read_set);
-		FD_SET(cs, &read_set);
-		int rslt = select(FD_SETSIZE, &read_set, NULL, NULL, NULL);
+	pid_t n_pid;
 
-		if (rslt){
-			//printf("rslt is not zero\n");
-			if (FD_ISSET(cs, &read_set)){
-				read(cs, buf, BUFSIZ);
-				printf("\nquestion is:\n%s\n", buf);
+	n_pid = fork();
+
+	if (n_pid == 0){
+
+		while(1){
+			FD_ZERO(&read_set);
+			FD_SET(cs, &read_set);
+			int rslt = select(FD_SETSIZE, &read_set, NULL, NULL, NULL);
+
+			if (rslt){
+				//printf("rslt is not zero\n");
+				if (FD_ISSET(cs, &read_set)){
+					read(cs, buf, BUFSIZ);
+					printf("\nquestion is:\n%s\n", buf);
 				
-				if (strlen(buf) < 5){
-					//memset(buf, '\0', 255);
- 					//continue;
+					if (strlen(buf) < 5){
+						//memset(buf, '\0', 255);
+ 						//continue;
 					break;
-				}
-				getfilename(buf, filename);			
+					}
+					getfilename(buf, filename);			
 			
-			//	if (filename == "exit")
-			//		break;
+				//	if (filename == "exit")
+				//		break;
 	
-				if((html = open(filename, O_RDONLY)) > 0){
-					printf("file %s is find\n", filename);
-					makeanswer(html, full_answer, 0);
-					close(html);
-					send(cs, full_answer, strlen(full_answer), 0);
+					if((html = open(filename, O_RDONLY)) > 0){
+						printf("file %s is find\n", filename);
+						makeanswer(html, full_answer, 0);
+						close(html);
+						send(cs, full_answer, strlen(full_answer), 0);
+					}
+					else{
+						printf("file %s is NOT find\n", filename);
+						html = open("nfound.html", O_RDONLY);
+						makeanswer(html, full_answer, 1);
+						close(html);
+						send(cs, full_answer, strlen(full_answer), 0);
+					}
+					//break;
 				}
-				else{
-					printf("file %s is NOT find\n", filename);
-					html = open("nfound.html", O_RDONLY);
-					makeanswer(html, full_answer, 1);
-					close(html);
-					send(cs, full_answer, strlen(full_answer), 0);
-				}
-				//break;
+				memset(buf, '\0', 255);
 			}
-			memset(buf, '\0', 255);
-		}
-	}
-	//sleep(13);
-	//printf("daem is finishing!!!\n");
-	close(cs);
-	}
+		}//while
+		close(cs);
+	}//if pid==0
+	waitpid(n_pid, &status, WUNTRACED);
+	}//while
 	close(ss);	
 	return;
 }
