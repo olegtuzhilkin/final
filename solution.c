@@ -211,7 +211,7 @@ while(1){
 			}
 		}//while
 		close(cs);
-//	}//if pid==0
+	}//if pid==0
 	waitpid(n_pid, &status, WUNTRACED);
 	}//while
 	close(ss);	
