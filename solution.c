@@ -164,7 +164,7 @@ static void *start_thrd(void *ss)
 			memset(buf, '\0', 255);
 		}
 	}//while
-	
+	close(cs);	
 	return resp;
 }
 //-------------------------------------------------
